@@ -1,0 +1,16 @@
+.admin-dashboard {
+  max-width: 800px;
+  margin: 40px auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.admin-dashboard h4 {
+  margin: 10px 0 5px 0;
+}
+
+.admin-dashboard p {
+  margin: 0 0 10px 0;
+}
