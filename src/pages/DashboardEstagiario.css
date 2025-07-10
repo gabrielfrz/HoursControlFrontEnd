@@ -1,0 +1,40 @@
+.dashboard-estagiario-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #f4f6f8;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.dashboard-estagiario-container h2 {
+  color: #002366;
+}
+
+.dashboard-estagiario-container button {
+  background-color: #002366;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.dashboard-estagiario-container button:hover {
+  background-color: #003399;
+}
+
+.dashboard-estagiario-container ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.dashboard-estagiario-container li {
+  background: white;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 6px;
+}
