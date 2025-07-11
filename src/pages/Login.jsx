@@ -14,7 +14,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/users/login', { email, password });
+      const res = await api.post('/login', { email, password });
       if (res.data.user.role !== 'estagiario') {
         toast.error('Você não é estagiário!');
         return;
