@@ -75,14 +75,16 @@ export default function Admin() {
         <button type="submit">Cadastrar</button>
       </form>
 
-      <h3>Lista de Usuários</h3>
-      {users.map((u) => (
-        <div key={u.id}>
-          <strong>{u.name}</strong> ({u.email}) - {u.role}
-          <p>{u.type ? `Último ponto: ${u.type} em ${new Date(u.timestamp).toLocaleString()}` : 'Nenhum ponto registrado'}</p>
-          <hr />
-        </div>
-      ))}
+      <h3>Lista de Estagiários</h3>
+      {users
+        .filter((u) => u.role === 'estagiario')
+        .map((u) => (
+          <div key={u.id}>
+            <strong>{u.name}</strong> ({u.email}) - {u.role}
+            <p>{u.type ? `Último ponto: ${u.type} em ${new Date(u.timestamp).toLocaleString()}` : 'Nenhum ponto registrado'}</p>
+            <hr />
+          </div>
+        ))}
     </div>
   );
 }
