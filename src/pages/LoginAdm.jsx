@@ -14,7 +14,7 @@ export default function LoginAdm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/users/login', { email, password });
+      const res = await api.post('/login', { email, password });
       if (res.data.user.role !== 'adm') {
         toast.error('Você não é técnico (ADM)!');
         return;
