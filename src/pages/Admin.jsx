@@ -5,6 +5,7 @@ import './Admin.css';
 
 export default function Admin() {
   const [users, setUsers] = useState([]);
+  const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,6 +42,7 @@ export default function Admin() {
       setName('');
       setEmail('');
       setPassword('');
+      setShowForm(false);
       loadUsers();
     } catch (err) {
       toast.error('Erro ao cadastrar estagiário');
@@ -51,38 +53,47 @@ export default function Admin() {
     <div className="admin-dashboard">
       <h2>Dashboard Técnico (ADM)</h2>
 
-      <form onSubmit={handleRegister} className="admin-form">
-        <h3>Adicionar Estagiário</h3>
-        <input
-          placeholder="Nome"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Cadastrar</button>
-      </form>
+      {!showForm && (
+        <button className="toggle-btn" onClick={() => setShowForm(true)}>
+          Adicionar Estagiário
+        </button>
+      )}
+
+      {showForm && (
+        <form onSubmit={handleRegister} className="admin-form">
+          <input
+            placeholder="Nome"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Cadastrar</button>
+          <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>
+            Cancelar
+          </button>
+        </form>
+      )}
 
       <h3>Lista de Estagiários</h3>
       {users
         .filter((u) => u.role === 'estagiario')
         .map((u) => (
-          <div key={u.id}>
+          <div className="user-card" key={u.id}>
             <strong>{u.name}</strong> ({u.email}) - {u.role}
             <p>{u.type ? `Último ponto: ${u.type} em ${new Date(u.timestamp).toLocaleString()}` : 'Nenhum ponto registrado'}</p>
-            <hr />
           </div>
         ))}
     </div>
