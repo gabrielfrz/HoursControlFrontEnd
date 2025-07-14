@@ -17,6 +17,12 @@ export default function Home() {
           Sou Técnico (ADM)
         </button>
       </div>
+      <button
+        className="home-button register-button"
+        onClick={() => navigate('/register')}
+      >
+        Criar conta
+      </button>
     </div>
   );
 }
