@@ -12,7 +12,7 @@ export default function Admin() {
   const loadUsers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await api.get('/users/all', {
+      const res = await api.get('/all', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
@@ -29,7 +29,7 @@ export default function Admin() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await api.post('/users/register', {
+      await api.post('/register', {
         name,
         email,
         password,
