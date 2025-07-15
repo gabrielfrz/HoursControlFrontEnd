@@ -30,11 +30,12 @@ export default function DashboardEstagiario() {
   const handleRegisterPoint = async () => {
     try {
       const token = localStorage.getItem('token');
-      await api.post('/register', {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post('/register',
+        { date: selectedDate || null },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       toast.success('Ponto registrado com sucesso!');
-      loadSummary();
+      loadSummary(selectedDate);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erro ao registrar ponto');
     }
@@ -49,9 +50,9 @@ export default function DashboardEstagiario() {
   const pontosHoje = summary?.points || [];
   const pontosRegistrados = pontosHoje.length;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const isToday = selectedDate === '' || selectedDate === today;
-  const podeRegistrar = pontosRegistrados < 4 && isToday;
+  // ✅ Atualizado: permitir dias passados, bloquear somente futuros
+  const isFuture = selectedDate && new Date(selectedDate) > new Date();
+  const podeRegistrar = pontosRegistrados < 4 && !isFuture;
 
   return (
     <div className="estagiario-dashboard">
@@ -67,7 +68,7 @@ export default function DashboardEstagiario() {
 
       {!podeRegistrar && (
         <p style={{ color: 'red', marginTop: '10px' }}>
-          Não é possível registrar: já completou os 4 pontos ou data inválida.
+          Não é possível registrar: já completou os 4 pontos ou data inválida (futura).
         </p>
       )}
 
