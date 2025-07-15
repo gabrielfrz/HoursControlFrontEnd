@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import LoginAdm from './pages/LoginAdm';
@@ -20,6 +20,12 @@ export default function App() {
         <Route path="/dashboard-estagiario" element={<DashboardEstagiario />} />
         <Route path="/dashboard-adm" element={<DashboardAdm />} />
         <Route path="/admin" element={<Admin />} />
+
+        {/* ✅ Adicionado para permitir acessar "/dashboard" */}
+        <Route path="/dashboard" element={<DashboardEstagiario />} />
+
+        {/* ✅ Caso queira evitar erros de rota inválida, pode adicionar fallback */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <ToastContainer />
     </BrowserRouter>

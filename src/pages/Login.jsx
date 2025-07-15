@@ -21,7 +21,7 @@ export default function Login() {
       }
       localStorage.setItem('token', res.data.token);
       toast.success('Login realizado!');
-      navigate('/dashboard');
+      navigate('/dashboard-estagiario'); 
     } catch (err) {
       toast.error('Erro ao logar');
     }
