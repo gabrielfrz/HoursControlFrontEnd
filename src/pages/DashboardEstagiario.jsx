@@ -30,10 +30,14 @@ export default function DashboardEstagiario() {
   const handleRegisterPoint = async () => {
     try {
       const token = localStorage.getItem('token');
-      await api.post('/register',
-        { date: selectedDate || null },
+      const dateToSend = selectedDate ? new Date(selectedDate).toISOString() : null;
+
+      await api.post(
+        '/points/register',
+        { date: dateToSend },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       toast.success('Ponto registrado com sucesso!');
       loadSummary(selectedDate);
     } catch (err) {
@@ -49,8 +53,6 @@ export default function DashboardEstagiario() {
 
   const pontosHoje = summary?.points || [];
   const pontosRegistrados = pontosHoje.length;
-
-  // ✅ Atualizado: permitir dias passados, bloquear somente futuros
   const isFuture = selectedDate && new Date(selectedDate) > new Date();
   const podeRegistrar = pontosRegistrados < 4 && !isFuture;
 
@@ -86,11 +88,8 @@ export default function DashboardEstagiario() {
           <p><strong>Data:</strong> {summary.date}</p>
           <p><strong>Total Trabalhado:</strong> {summary.totalHours} horas</p>
           <p>
-            <strong>Status:</strong> {summary.isComplete
-              ? 'Cumprido ✅'
-              : 'Incompleto ⚠️'}
+            <strong>Status:</strong> {summary.isComplete ? 'Cumprido ✅' : 'Incompleto ⚠️'}
           </p>
-
           <h4>Detalhes do Dia</h4>
           {summary.points.map((point) => (
             <p key={point.id}>
