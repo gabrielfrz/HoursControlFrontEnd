@@ -80,24 +80,27 @@ export default function DashboardEstagiario() {
   };
 
   const handleEditClick = (id, originalTimestamp) => {
-  setEditingPointId(id);
-
-  const localISOString = new Date(originalTimestamp).toISOString().slice(0, 16);
-
-
-  setEditedTimestamp(localISOString);
-};
-
-
+    setEditingPointId(id);
+    const localDate = new Date(originalTimestamp);
+    const localISO = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16); // YYYY-MM-DDTHH:MM
+    setEditedTimestamp(localISO);
+  };
 
   const handleSaveEdit = async (pointId) => {
     try {
       const token = localStorage.getItem('token');
+
+      const tzOffset = new Date().getTimezoneOffset() * 60000;
+      const correctedTimestamp = new Date(new Date(editedTimestamp).getTime() - tzOffset).toISOString();
+
       await api.put(
         `/points/edit/${pointId}`,
-        { timestamp: editedTimestamp },
+        { timestamp: correctedTimestamp },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       toast.success("Horário atualizado!");
       setEditingPointId(null);
       loadSummary(selectedDate);
@@ -156,16 +159,15 @@ export default function DashboardEstagiario() {
           <h4>Detalhes do Dia</h4>
           {summary.points.map((point) => {
             const localHora = new Date(point.timestamp)
-            .toLocaleString('pt-BR', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-  })
-  .replace(',', ' -');
-
+              .toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              })
+              .replace(',', ' -');
 
             return (
               <div key={point.id}>
