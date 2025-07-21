@@ -80,14 +80,16 @@ export default function DashboardEstagiario() {
   };
 
   const handleEditClick = (id, originalTimestamp) => {
-    const localISO = new Date(originalTimestamp);
-    const tzOffset = localISO.getTimezoneOffset() * 60000; 
-    const adjusted = new Date(localISO.getTime() - tzOffset)
-      .toISOString()
-      .slice(0, 16); 
-    setEditingPointId(id);
-    setEditedTimestamp(adjusted);
+  setEditingPointId(id);
+
+  const date = new Date(originalTimestamp);
+  const localISOString = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
+
+  setEditedTimestamp(localISOString);
 };
+
 
 
   const handleSaveEdit = async (pointId) => {
@@ -155,7 +157,17 @@ export default function DashboardEstagiario() {
           </p>
           <h4>Detalhes do Dia</h4>
           {summary.points.map((point) => {
-            const localHora = new Date(point.timestamp).toLocaleString();
+            const localHora = new Date(point.timestamp)
+            .toLocaleString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+  })
+  .replace(',', ' -');
+
 
             return (
               <div key={point.id}>
