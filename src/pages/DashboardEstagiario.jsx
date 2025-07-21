@@ -82,10 +82,8 @@ export default function DashboardEstagiario() {
   const handleEditClick = (id, originalTimestamp) => {
   setEditingPointId(id);
 
-  const date = new Date(originalTimestamp);
-  const localISOString = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
+  const localISOString = new Date(originalTimestamp).toISOString().slice(0, 16);
+
 
   setEditedTimestamp(localISOString);
 };
