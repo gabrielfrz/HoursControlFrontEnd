@@ -12,12 +12,12 @@ export default function DashboardEstagiario() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const res = await api.get(`/summary/${date}`, {
+      const res = await api.get(`/points/summary/${date}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSummary(res.data);
     } catch (err) {
-      toast.error('Erro ao carregar resumo');
+      toast.error(err.response?.data?.message || 'Erro ao carregar resumo');
     } finally {
       setLoading(false);
     }
@@ -30,7 +30,9 @@ export default function DashboardEstagiario() {
   const handleRegisterPoint = async () => {
     try {
       const token = localStorage.getItem('token');
-      const dateToSend = selectedDate ? new Date(selectedDate).toISOString() : null;
+
+      // Não converte para Date no frontend! Apenas envia a string "YYYY-MM-DD"
+      const dateToSend = selectedDate || null;
 
       await api.post(
         '/points/register',
@@ -49,6 +51,32 @@ export default function DashboardEstagiario() {
     const date = e.target.value;
     setSelectedDate(date);
     loadSummary(date);
+  };
+
+  const handleDeleteDay = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.delete(`/points/delete-day/${selectedDate}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Todos os pontos do dia foram apagados.");
+      loadSummary(selectedDate);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Erro ao apagar pontos do dia.");
+    }
+  };
+
+  const handleDeletePoint = async (pointId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.delete(`/points/delete/${pointId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Ponto excluído!");
+      loadSummary(selectedDate);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Erro ao excluir ponto.");
+    }
   };
 
   const pontosHoje = summary?.points || [];
@@ -81,21 +109,44 @@ export default function DashboardEstagiario() {
         className="date-input"
       />
 
+      <button
+        className="delete-day-btn"
+        onClick={handleDeleteDay}
+        style={{ marginTop: '10px' }}
+      >
+        Apagar todos os pontos do dia
+      </button>
+
       {loading ? (
         <p>Carregando...</p>
       ) : summary ? (
         <div className="summary-card">
-          <p><strong>Data:</strong> {summary.date}</p>
+          <p><strong>Data:</strong> {selectedDate}</p>
           <p><strong>Total Trabalhado:</strong> {summary.totalHours} horas</p>
           <p>
-            <strong>Status:</strong> {summary.isComplete ? 'Cumprido ✅' : 'Incompleto ⚠️'}
+            <strong>Status:</strong> {summary.message}
           </p>
           <h4>Detalhes do Dia</h4>
-          {summary.points.map((point) => (
-            <p key={point.id}>
-              {point.type} - {new Date(point.timestamp).toLocaleString()}
-            </p>
-          ))}
+          {summary.points.map((point) => {
+            let hora;
+            try {
+              hora = new Date(point.timestamp).toLocaleString();
+            } catch (e) {
+              hora = "Horário inválido";
+            }
+
+            return (
+              <p key={point.id}>
+                {point.type} - {hora}
+                <button
+                  onClick={() => handleDeletePoint(point.id)}
+                  style={{ marginLeft: '10px' }}
+                >
+                  Excluir
+                </button>
+              </p>
+            );
+          })}
         </div>
       ) : (
         <p>Sem registros para esta data.</p>

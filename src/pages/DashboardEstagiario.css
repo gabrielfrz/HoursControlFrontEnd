@@ -81,3 +81,39 @@
     width: 100%;
   }
 }
+
+.delete-day-btn {
+  background-color: #cc0000;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.delete-day-btn:hover {
+  background-color: #fff;
+  color: #cc0000;
+  border: 2px solid #cc0000;
+}
+
+
+
+.summary-card button {
+  background-color: transparent;
+  color: #cc0000;
+  border: none;
+  margin-left: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.summary-card button:hover {
+  color: #a00000;
+}
