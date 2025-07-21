@@ -81,19 +81,14 @@ export default function DashboardEstagiario() {
 
   const handleEditClick = (id, originalTimestamp) => {
     setEditingPointId(id);
-    const localDate = new Date(originalTimestamp);
-    const localISO = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16); // YYYY-MM-DDTHH:MM
-    setEditedTimestamp(localISO);
+    const localISOString = new Date(originalTimestamp).toISOString().slice(0, 16); // horário UTC
+    setEditedTimestamp(localISOString);
   };
 
   const handleSaveEdit = async (pointId) => {
     try {
       const token = localStorage.getItem('token');
-
-      const tzOffset = new Date().getTimezoneOffset() * 60000;
-      const correctedTimestamp = new Date(new Date(editedTimestamp).getTime() - tzOffset).toISOString();
+      const correctedTimestamp = new Date(editedTimestamp).toISOString(); // conversão correta para UTC
 
       await api.put(
         `/points/edit/${pointId}`,
