@@ -80,9 +80,15 @@ export default function DashboardEstagiario() {
   };
 
   const handleEditClick = (id, originalTimestamp) => {
+    const localISO = new Date(originalTimestamp);
+    const tzOffset = localISO.getTimezoneOffset() * 60000; 
+    const adjusted = new Date(localISO.getTime() - tzOffset)
+      .toISOString()
+      .slice(0, 16); 
     setEditingPointId(id);
-    setEditedTimestamp(originalTimestamp.slice(0, 16)); // formato datetime-local
-  };
+    setEditedTimestamp(adjusted);
+};
+
 
   const handleSaveEdit = async (pointId) => {
     try {
