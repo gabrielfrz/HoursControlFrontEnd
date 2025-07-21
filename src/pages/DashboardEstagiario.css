@@ -117,3 +117,40 @@
 .summary-card button:hover {
   color: #a00000;
 }
+
+.edit-input {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  margin-left: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: all 0.3s ease;
+}
+
+.save-btn {
+  background-color: #007BFF;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #0056b3;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #4e555b;
+}

@@ -7,6 +7,8 @@ export default function DashboardEstagiario() {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
+  const [editingPointId, setEditingPointId] = useState(null);
+  const [editedTimestamp, setEditedTimestamp] = useState('');
 
   const loadSummary = async (date = '') => {
     try {
@@ -30,8 +32,6 @@ export default function DashboardEstagiario() {
   const handleRegisterPoint = async () => {
     try {
       const token = localStorage.getItem('token');
-
-      // Não converte para Date no frontend! Apenas envia a string "YYYY-MM-DD"
       const dateToSend = selectedDate || null;
 
       await api.post(
@@ -76,6 +76,27 @@ export default function DashboardEstagiario() {
       loadSummary(selectedDate);
     } catch (err) {
       toast.error(err.response?.data?.message || "Erro ao excluir ponto.");
+    }
+  };
+
+  const handleEditClick = (id, originalTimestamp) => {
+    setEditingPointId(id);
+    setEditedTimestamp(originalTimestamp.slice(0, 16)); // formato datetime-local
+  };
+
+  const handleSaveEdit = async (pointId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.put(
+        `/points/edit/${pointId}`,
+        { timestamp: editedTimestamp },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Horário atualizado!");
+      setEditingPointId(null);
+      loadSummary(selectedDate);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Erro ao atualizar horário.");
     }
   };
 
@@ -128,23 +149,33 @@ export default function DashboardEstagiario() {
           </p>
           <h4>Detalhes do Dia</h4>
           {summary.points.map((point) => {
-            let hora;
-            try {
-              hora = new Date(point.timestamp).toLocaleString();
-            } catch (e) {
-              hora = "Horário inválido";
-            }
+            const localHora = new Date(point.timestamp).toLocaleString();
 
             return (
-              <p key={point.id}>
-                {point.type} - {hora}
-                <button
-                  onClick={() => handleDeletePoint(point.id)}
-                  style={{ marginLeft: '10px' }}
-                >
-                  Excluir
-                </button>
-              </p>
+              <div key={point.id}>
+                {point.type} -{" "}
+                {editingPointId === point.id ? (
+                  <>
+                    <input
+                      type="datetime-local"
+                      value={editedTimestamp}
+                      onChange={(e) => setEditedTimestamp(e.target.value)}
+                    />
+                    <button onClick={() => handleSaveEdit(point.id)}>Salvar</button>
+                    <button onClick={() => setEditingPointId(null)}>Cancelar</button>
+                  </>
+                ) : (
+                  <>
+                    {localHora}
+                    <button onClick={() => handleEditClick(point.id, point.timestamp)} style={{ marginLeft: '10px' }}>
+                      Editar
+                    </button>
+                    <button onClick={() => handleDeletePoint(point.id)} style={{ marginLeft: '10px' }}>
+                      Excluir
+                    </button>
+                  </>
+                )}
+              </div>
             );
           })}
         </div>
