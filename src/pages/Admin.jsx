@@ -6,6 +6,7 @@ import './Admin.css';
 export default function Admin() {
   const [users, setUsers] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,26 +27,86 @@ export default function Admin() {
     loadUsers();
   }, []);
 
-  const handleRegister = async (e) => {
+  const handleRegisterOrEdit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await api.post('/register', {
-        name,
-        email,
-        password,
-        role: 'estagiario',
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Estagiário adicionado com sucesso!');
-      setName('');
-      setEmail('');
-      setPassword('');
-      setShowForm(false);
+      if (editingUser) {
+        await api.put(`/users/${editingUser.id}`, {
+          name,
+          email,
+          password,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('Estagiário atualizado!');
+      } else {
+        await api.post('/register', {
+          name,
+          email,
+          password,
+          role: 'estagiario',
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success('Estagiário adicionado!');
+      }
+
+      resetForm();
       loadUsers();
     } catch (err) {
-      toast.error('Erro ao cadastrar estagiário');
+      toast.error('Erro ao salvar estagiário');
+    }
+  };
+
+  const resetForm = () => {
+    setName('');
+    setEmail('');
+    setPassword('');
+    setShowForm(false);
+    setEditingUser(null);
+  };
+
+  const handleEdit = (user) => {
+    setName(user.name);
+    setEmail(user.email);
+    setPassword('');
+    setEditingUser(user);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.delete(`/users/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Estagiário excluído');
+      loadUsers();
+    } catch (err) {
+      toast.error('Erro ao excluir');
+    }
+  };
+
+  const handlePhotoChange = async (e, userId) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await api.post(`/users/upload-photo/${userId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      toast.success('Foto atualizada!');
+      loadUsers();
+    } catch (err) {
+      toast.error('Erro ao enviar foto');
     }
   };
 
@@ -54,13 +115,13 @@ export default function Admin() {
       <h2>Dashboard Técnico (ADM)</h2>
 
       {!showForm && (
-        <button className="toggle-btn" onClick={() => setShowForm(true)}>
+        <button className="add-btn" onClick={() => setShowForm(true)}>
           Adicionar Estagiário
         </button>
       )}
 
       {showForm && (
-        <form onSubmit={handleRegister} className="admin-form">
+        <form onSubmit={handleRegisterOrEdit} className="admin-form">
           <input
             placeholder="Nome"
             value={name}
@@ -78,24 +139,41 @@ export default function Admin() {
             placeholder="Senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            required={!editingUser}
           />
-          <button type="submit">Cadastrar</button>
-          <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>
+          <button type="submit">{editingUser ? 'Atualizar' : 'Cadastrar'}</button>
+          <button type="button" className="cancel-btn" onClick={resetForm}>
             Cancelar
           </button>
         </form>
       )}
 
       <h3>Lista de Estagiários</h3>
-      {users
-        .filter((u) => u.role === 'estagiario')
-        .map((u) => (
-          <div className="user-card" key={u.id}>
-            <strong>{u.name}</strong> ({u.email}) - {u.role}
-            <p>{u.type ? `Último ponto: ${u.type} em ${new Date(u.timestamp).toLocaleString()}` : 'Nenhum ponto registrado'}</p>
+      {users.filter(u => u.role === 'estagiario').map((u) => (
+        <div className="user-card" key={u.id}>
+          <img
+            src={u.photoUrl || 'https://via.placeholder.com/80'}
+            alt="Foto"
+            className="user-photo"
+          />
+          <p><strong>{u.name}</strong> ({u.email}) - estagiario</p>
+
+          <label className="upload-btn">
+            Enviar Foto
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => handlePhotoChange(e, u.id)}
+            />
+          </label>
+
+          <div style={{ marginTop: 10, display: 'flex', gap: '10px' }}>
+            <button className="toggle-btn" onClick={() => handleEdit(u)}>Editar</button>
+            <button className="cancel-btn" onClick={() => handleDelete(u.id)}>Excluir</button>
           </div>
-        ))}
+        </div>
+      ))}
     </div>
   );
 }
