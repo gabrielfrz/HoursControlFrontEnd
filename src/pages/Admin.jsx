@@ -136,11 +136,11 @@ export default function Admin() {
           />
           <input
             type="password"
-            placeholder="Senha"
+            placeholder={editingUser ? "Nova senha (opcional)" : "Senha"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required={!editingUser}
-          />
+/>
           <button type="submit">{editingUser ? 'Atualizar' : 'Cadastrar'}</button>
           <button type="button" className="cancel-btn" onClick={resetForm}>
             Cancelar
@@ -150,7 +150,7 @@ export default function Admin() {
 
       <h3>Lista de Estagiários</h3>
       {users.filter(u => u.role === 'estagiario').map((u) => (
-        <div className="user-card" key={u.id}>
+        <div className={`user-card ${editingUser?.id === u.id ? 'edit-mode' : ''}`} key={u.id}>
           <img
             src={u.photoUrl || 'https://via.placeholder.com/80'}
             alt="Foto"
@@ -158,20 +158,24 @@ export default function Admin() {
           />
           <p><strong>{u.name}</strong> ({u.email}) - estagiario</p>
 
-          <label className="upload-btn">
-            Enviar Foto
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => handlePhotoChange(e, u.id)}
-            />
-          </label>
+          {editingUser?.id === u.id && (
+  <label className="upload-btn">
+    Enviar Foto
+    <input
+      type="file"
+      accept="image/*"
+      hidden
+      onChange={(e) => handlePhotoChange(e, u.id)}
+    />
+  </label>
+)}
 
-          <div style={{ marginTop: 10, display: 'flex', gap: '10px' }}>
-            <button className="toggle-btn" onClick={() => handleEdit(u)}>Editar</button>
-            <button className="cancel-btn" onClick={() => handleDelete(u.id)}>Excluir</button>
-          </div>
+
+          <div className="action-btns">
+            <button className="edit-btn" onClick={() => handleEdit(u)}>Editar</button>
+            <button className="delete-btn" onClick={() => handleDelete(u.id)}>Excluir</button>
+</div>
+
         </div>
       ))}
     </div>
