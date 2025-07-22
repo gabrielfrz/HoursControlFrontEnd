@@ -5,7 +5,12 @@ import './DashboardEstagiario.css';
 import { useNavigate } from 'react-router-dom'; 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { ptBR } from 'date-fns/locale';
+import ptBR from 'date-fns/locale/pt-BR';
+import 'react-datepicker/dist/react-datepicker.css';
+import { registerLocale } from 'react-datepicker';
+
+
+registerLocale('pt-BR', ptBR);
 
 
 export default function DashboardEstagiario() {
@@ -154,15 +159,18 @@ export default function DashboardEstagiario() {
       )}
 
       <DatePicker
-  selected={selectedDate ? new Date(selectedDate) : null}
-  onChange={(date) => {
-    const formatted = date.toISOString().split('T')[0];
-    setSelectedDate(formatted);
-    loadSummary(formatted);
+        selected={selectedDate ? new Date(selectedDate) : null}
+        onChange={(date) => {
+          const formatted = date.toISOString().split('T')[0]; // yyyy-MM-dd
+          setSelectedDate(formatted);
+          loadSummary(formatted);
   }}
-  locale={ptBR}
+  locale="pt-BR"
   dateFormat="dd/MM/yyyy"
   className="date-input"
+  placeholderText="Selecione a data"
+  withPortal // importante para celulares
+  showPopperArrow={false}
 />
 
       <button

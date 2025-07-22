@@ -357,9 +357,18 @@
   color: white;
 }
 
-@media (max-width: 500px) {
+.react-datepicker__input-container input {
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .react-datepicker__portal {
+    width: 100%;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
   .react-datepicker {
-    font-size: 0.85rem;
-    width: 100% !important;
+    font-size: 1rem;
   }
 }
