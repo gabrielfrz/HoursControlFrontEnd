@@ -1,156 +1,265 @@
 .estagiario-dashboard {
+  padding: 2rem 1rem;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f4f6f8 40%, #e6e9f0 100%);
+  background: linear-gradient(120deg, #eef2f3 0%, #dbe9f4 100%);
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .estagiario-dashboard h2 {
-  color: #002366;
+  color: #1a237e;
   font-size: 2rem;
-  margin-bottom: 20px;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.point-btn, .delete-day-btn {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.85rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
 .point-btn {
-  background-color: #002366;
+  background-color: #1a237e;
   color: #fff;
-  border: none;
-  padding: 14px 30px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 20px;
 }
 
 .point-btn:hover {
-  background-color: #ffffff;
-  color: #002366;
-  border: 2px solid #002366;
-  transform: translateY(-2px);
-}
-
-.date-input {
-  padding: 10px 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  font-size: 1rem;
-}
-
-.summary-card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.summary-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-}
-
-.summary-card p {
-  margin: 8px 0;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.summary-card h4 {
-  margin-top: 15px;
-  font-size: 1.1rem;
-  color: #002366;
-}
-
-@media (max-width: 500px) {
-  .summary-card {
-    max-width: 100%;
-  }
-
-  .point-btn {
-    width: 100%;
-  }
-
-  .date-input {
-    width: 100%;
-  }
+  background-color: #fff;
+  color: #1a237e;
+  border: 2px solid #1a237e;
 }
 
 .delete-day-btn {
-  background-color: #cc0000;
+  background-color: #c62828;
   color: #fff;
-  border: none;
-  padding: 10px 22px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 20px;
 }
 
 .delete-day-btn:hover {
   background-color: #fff;
-  color: #cc0000;
-  border: 2px solid #cc0000;
+  color: #c62828;
+  border: 2px solid #c62828;
 }
 
+.date-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.7rem;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+}
 
+.summary-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+}
+
+.summary-card p {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0.5rem 0;
+}
+
+.summary-card h4 {
+  margin-top: 1.2rem;
+  font-size: 1.1rem;
+  color: #1a237e;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+}
 
 .summary-card button {
-  background-color: transparent;
-  color: #cc0000;
+  background: none;
+  color: #1565c0;
   border: none;
-  margin-left: 8px;
-  font-size: 0.85rem;
   cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 10px;
   text-decoration: underline;
-  transition: color 0.2s ease;
+  transition: color 0.2s;
 }
 
 .summary-card button:hover {
-  color: #a00000;
+  color: #0d47a1;
 }
 
 .edit-input {
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  margin-left: 5px;
+  padding: 0.5rem;
+  font-size: 0.95rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
+  margin: 0.3rem 0;
+  width: 100%;
 }
 
 .action-btn {
-  padding: 6px 12px;
-  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  margin-left: 6px;
-  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  transition: background-color 0.3s;
 }
 
 .save-btn {
-  background-color: #007BFF;
+  background-color: #2e7d32;
   color: white;
 }
 
 .save-btn:hover {
-  background-color: #0056b3;
+  background-color: #1b5e20;
 }
 
 .cancel-btn {
-  background-color: #6c757d;
+  background-color: #757575;
   color: white;
 }
 
 .cancel-btn:hover {
-  background-color: #4e555b;
+  background-color: #424242;
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+  .estagiario-dashboard h2 {
+    font-size: 1.6rem;
+  }
+
+  .summary-card {
+    padding: 1rem;
+  }
+
+  .point-btn, .delete-day-btn {
+    font-size: 0.95rem;
+  }
+
+  .date-input {
+    font-size: 0.95rem;
+  }
+
+  .action-btn {
+    width: 100%;
+    margin: 0.5rem 0 0 0;
+  }
+}
+
+.summary-card h4 {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #0e2d64;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 5px;
+}
+
+.point-item {
+  background-color: #f4f6fc;
+  border: 1px solid #d9e1ec;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease;
+}
+
+.point-item:hover {
+  box-shadow: 0 0 10px rgba(21, 101, 192, 0.15);
+}
+
+.point-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.point-label {
+  font-weight: 700;
+  color: #1a237e;
+  background-color: #e8eaf6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.point-timestamp {
+  color: #37474f;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Courier New', monospace;
+}
+
+.point-timestamp::before {
+  content: "🕒";
+  font-size: 1rem;
+}
+
+.point-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.point-actions button {
+  background-color: transparent;
+  border: none;
+  color: #1565c0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.point-actions button:hover {
+  background-color: #e3f2fd;
+}
+
+.point-actions input[type="datetime-local"] {
+  padding: 6px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+@media (max-width: 500px) {
+  .point-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .point-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
 }

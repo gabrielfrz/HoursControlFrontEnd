@@ -26,7 +26,9 @@ export default function DashboardEstagiario() {
   };
 
   useEffect(() => {
-    loadSummary();
+    const today = new Date().toISOString().split('T')[0];
+    setSelectedDate(today);
+    loadSummary(today);
   }, []);
 
   const handleRegisterPoint = async () => {
@@ -81,14 +83,14 @@ export default function DashboardEstagiario() {
 
   const handleEditClick = (id, originalTimestamp) => {
     setEditingPointId(id);
-    const localISOString = new Date(originalTimestamp).toISOString().slice(0, 16); // horário UTC
+    const localISOString = new Date(originalTimestamp).toISOString().slice(0, 16);
     setEditedTimestamp(localISOString);
   };
 
   const handleSaveEdit = async (pointId) => {
     try {
       const token = localStorage.getItem('token');
-      const correctedTimestamp = new Date(editedTimestamp).toISOString(); // conversão correta para UTC
+      const correctedTimestamp = new Date(editedTimestamp).toISOString();
 
       await api.put(
         `/points/edit/${pointId}`,
@@ -104,11 +106,24 @@ export default function DashboardEstagiario() {
     }
   };
 
+  const getStatusColor = (hours) => {
+    if (hours < 6) return 'red';
+    if (hours > 6) return 'green';
+    return 'black';
+  };
+
+  const getStatusMessage = (hours) => {
+    if (hours < 6) return 'Abaixo da meta';
+    if (hours > 6) return 'Meta atingida ou extra';
+    return 'Meta exata';
+  };
+
   const pontosHoje = summary?.points || [];
   const pontosRegistrados = pontosHoje.length;
   const isFuture = selectedDate && new Date(selectedDate) > new Date();
   const podeRegistrar = pontosRegistrados < 4 && !isFuture;
 
+  // ✅ AQUI COMEÇA O JSX
   return (
     <div className="estagiario-dashboard">
       <h2>Seu Ponto</h2>
@@ -146,12 +161,27 @@ export default function DashboardEstagiario() {
         <p>Carregando...</p>
       ) : summary ? (
         <div className="summary-card">
-          <p><strong>Data:</strong> {selectedDate}</p>
-          <p><strong>Total Trabalhado:</strong> {summary.totalHours} horas</p>
           <p>
-            <strong>Status:</strong> {summary.message}
+            <strong>Data:</strong>{' '}
+            {summary.date
+              ? summary.date.split('T')[0].split('-').reverse().join('/')
+              : selectedDate.split('-').reverse().join('/')}
           </p>
+
+          <p>
+            <strong>Total Trabalhado:</strong>{' '}
+            {Number(summary.totalHours || 0).toFixed(2)} horas
+          </p>
+
+          <p>
+            <strong>Status:</strong>{' '}
+            <span style={{ color: getStatusColor(summary.totalHours), fontWeight: 600 }}>
+              {getStatusMessage(summary.totalHours)}
+            </span>
+          </p>
+
           <h4>Detalhes do Dia</h4>
+
           {summary.points.map((point) => {
             const localHora = new Date(point.timestamp)
               .toLocaleString('pt-BR', {
@@ -165,29 +195,45 @@ export default function DashboardEstagiario() {
               .replace(',', ' -');
 
             return (
-              <div key={point.id}>
-                {point.type} -{" "}
-                {editingPointId === point.id ? (
-                  <>
-                    <input
-                      type="datetime-local"
-                      value={editedTimestamp}
-                      onChange={(e) => setEditedTimestamp(e.target.value)}
-                    />
-                    <button onClick={() => handleSaveEdit(point.id)}>Salvar</button>
-                    <button onClick={() => setEditingPointId(null)}>Cancelar</button>
-                  </>
-                ) : (
-                  <>
-                    {localHora}
-                    <button onClick={() => handleEditClick(point.id, point.timestamp)} style={{ marginLeft: '10px' }}>
-                      Editar
-                    </button>
-                    <button onClick={() => handleDeletePoint(point.id)} style={{ marginLeft: '10px' }}>
-                      Excluir
-                    </button>
-                  </>
-                )}
+              <div key={point.id} className="point-item">
+                <div className="point-row">
+                  <span className="point-label">{point.type.replace('_', ' ')}</span>
+                  <span className="point-timestamp">{localHora}</span>
+                </div>
+
+                <div className="point-actions">
+                  {editingPointId === point.id ? (
+                    <>
+                      <input
+                        type="datetime-local"
+                        value={editedTimestamp}
+                        onChange={(e) => setEditedTimestamp(e.target.value)}
+                        className="edit-input"
+                      />
+                      <button
+                        className="save-btn action-btn"
+                        onClick={() => handleSaveEdit(point.id)}
+                      >
+                        Salvar
+                      </button>
+                      <button
+                        className="cancel-btn action-btn"
+                        onClick={() => setEditingPointId(null)}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => handleEditClick(point.id, point.timestamp)}>
+                        Editar
+                      </button>
+                      <button onClick={() => handleDeletePoint(point.id)}>
+                        Excluir
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             );
           })}
