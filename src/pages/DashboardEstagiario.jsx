@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
 import './DashboardEstagiario.css';
-import { useNavigate } from 'react-router-dom'; // no topo do arquivo
+import { useNavigate } from 'react-router-dom'; 
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { ptBR } from 'date-fns/locale';
+
+
 export default function DashboardEstagiario() {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -148,12 +153,17 @@ export default function DashboardEstagiario() {
         </p>
       )}
 
-      <input
-        type="date"
-        value={selectedDate}
-        onChange={handleDateChange}
-        className="date-input"
-      />
+      <DatePicker
+  selected={selectedDate ? new Date(selectedDate) : null}
+  onChange={(date) => {
+    const formatted = date.toISOString().split('T')[0];
+    setSelectedDate(formatted);
+    loadSummary(formatted);
+  }}
+  locale={ptBR}
+  dateFormat="dd/MM/yyyy"
+  className="date-input"
+/>
 
       <button
         className="delete-day-btn"

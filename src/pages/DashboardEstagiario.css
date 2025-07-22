@@ -54,11 +54,55 @@
 .date-input {
   width: 100%;
   max-width: 320px;
-  padding: 0.7rem;
+  padding: 0.7rem 1rem;
   margin-bottom: 1.5rem;
   font-size: 1rem;
   border: 1px solid #bbb;
   border-radius: 6px;
+  background-color: #fff;
+  color: #000;
+  background-image: none;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #1a237e;
+  box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.2);
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.react-datepicker-popper {
+  z-index: 10;
+  transform: scale(0.95);
+  transform-origin: top left;
+  max-width: 95vw;
+  overflow-x: auto;
+}
+
+.react-datepicker {
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+  .date-input {
+    font-size: 0.95rem;
+    padding: 0.6rem 0.9rem;
+  }
+
+  .react-datepicker-popper {
+    transform: scale(0.9);
+  }
+
+  .react-datepicker {
+    font-size: 0.85rem;
+  }
 }
 
 .summary-card {
@@ -143,7 +187,6 @@
   background-color: #424242;
 }
 
-/* Mobile tweaks */
 @media (max-width: 480px) {
   .estagiario-dashboard h2 {
     font-size: 1.6rem;
@@ -288,5 +331,35 @@
   transform: translateY(-2px);
 }
 
+.react-datepicker {
+  font-family: 'Segoe UI', sans-serif;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-size: 0.95rem;
+}
 
+.react-datepicker__header {
+  background-color: #1a237e;
+  color: white;
+  border-bottom: none;
+}
 
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #1a237e !important;
+  color: white;
+}
+
+@media (max-width: 500px) {
+  .react-datepicker {
+    font-size: 0.85rem;
+    width: 100% !important;
+  }
+}
