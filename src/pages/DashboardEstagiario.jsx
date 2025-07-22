@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
 import './DashboardEstagiario.css';
-
+import { useNavigate } from 'react-router-dom'; // no topo do arquivo
 export default function DashboardEstagiario() {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [editingPointId, setEditingPointId] = useState(null);
   const [editedTimestamp, setEditedTimestamp] = useState('');
-
+  const navigate = useNavigate();
   const loadSummary = async (date = '') => {
     try {
       setLoading(true);
@@ -123,9 +123,15 @@ export default function DashboardEstagiario() {
   const isFuture = selectedDate && new Date(selectedDate) > new Date();
   const podeRegistrar = pontosRegistrados < 4 && !isFuture;
 
-  // ✅ AQUI COMEÇA O JSX
+  
+
   return (
     <div className="estagiario-dashboard">
+      <button className="back-dashboard-btn" onClick={() => navigate('/menu')}>
+        ← Voltar ao Menu
+      </button>
+
+      
       <h2>Seu Ponto</h2>
 
       <button

@@ -1,49 +1,82 @@
+/* Reset básico */
+body, html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100%;
+  background-color: #f5f8fc;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Container principal */
 .home-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   min-height: 100vh;
-  padding: 40px 20px;
-  background: linear-gradient(135deg, #f4f6f8 40%, #e6e9f0 100%);
-}
-
-.home-logo {
-  max-width: 150px;
-  margin-bottom: 25px;
-}
-
-.home-title {
-  color: #002366;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 30px;
+  padding: 2rem 1rem;
   text-align: center;
+  background: linear-gradient(to bottom right, #eaf3fb, #f4f9ff);
 }
 
+/* Logo ajustada */
+.home-logo {
+  width: 160px;
+  height: auto;
+  margin-bottom: 2rem;
+}
+
+/* Título bonito e institucional */
+.home-title {
+  font-size: 1.9rem;
+  font-weight: bold;
+  color: #0e2d64;
+  margin-bottom: 2rem;
+  line-height: 1.4;
+}
+
+/* Botões */
 .home-buttons {
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 320px;
 }
 
 .home-button {
-  background-color: #002366;
-  color: #ffffff;
-  border: 2px solid transparent;
-  padding: 14px 28px;
+  padding: 14px;
   font-size: 1rem;
   font-weight: 600;
+  background-color: #001f5c;
+  color: white;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: scale(1);
 }
 
 .home-button:hover {
-  background-color: #ffffff;
-  color: #002366;
-  border: 2px solid #002366;
-  transform: translateY(-2px);
+  background-color: #00358f;
+  transform: scale(1.03);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.home-button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .home-title {
+    font-size: 1.6rem;
+  }
+
+  .home-button {
+    font-size: 0.95rem;
+  }
 }
