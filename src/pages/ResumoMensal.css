@@ -84,6 +84,18 @@ td input[type="checkbox"] {
   transform: scale(1.2);
 }
 
+/* Estilos para dias especiais */
+tr.weekend {
+  background-color: #f8f9fa; /* cinza claro */
+  color: #666;
+}
+tr.exception {
+  background-color: #fff6e6; /* amarelo claro */
+}
+tr.excluded {
+  background-color: #fdecea; /* rosa claro */
+}
+
 /* Ícones */
 td span.success {
   color: green;

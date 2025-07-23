@@ -8,11 +8,13 @@ export default function ResumoMensal() {
   const now = new Date();
   const navigate = useNavigate();
 
-  const [month, setMonth] = useState(now.getMonth() + 1); // 1–12
+  const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
   const [monthData, setMonthData] = useState([]);
   const [excludedDays, setExcludedDays] = useState({});
-  const contractPerDay = 6;
+  const [expectedHours, setExpectedHours] = useState(0);
+  const [actualWorked, setActualWorked] = useState(0);
+  const [bancoHoras, setBancoHoras] = useState(0);
 
   const fetchMonthSummary = async () => {
     try {
@@ -21,9 +23,11 @@ export default function ResumoMensal() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // res.data.days contém os dias individuais
       if (res.data?.days) {
         setMonthData(res.data.days);
+        setExpectedHours(res.data.expectedHours || 0);
+        setActualWorked(res.data.actualWorked || 0);
+        setBancoHoras(res.data.bancoHoras || 0);
       } else {
         setMonthData([]);
         toast.warn('Nenhum dado encontrado para esse mês.');
@@ -44,30 +48,6 @@ export default function ResumoMensal() {
     }));
   };
 
-  const getTotalValidHours = () => {
-    return monthData.reduce((total, item) => {
-      const isWeekend = [0, 6].includes(new Date(item.date).getDay());
-      const isExcluded = excludedDays[item.date];
-      if (!isWeekend && !isExcluded) {
-        return total + parseFloat(item.hours || 0);
-      }
-      return total;
-    }, 0).toFixed(2);
-  };
-
-  const getWorkingDays = () => {
-    return monthData.filter((item) => {
-      const day = new Date(item.date).getDay();
-      return ![0, 6].includes(day) && !excludedDays[item.date];
-    }).length;
-  };
-
-  const getBancoHoras = () => {
-    const totalHoras = parseFloat(getTotalValidHours());
-    const esperado = getWorkingDays() * contractPerDay;
-    return (totalHoras - esperado).toFixed(2);
-  };
-
   const resetExclusions = () => {
     setExcludedDays({});
   };
@@ -75,7 +55,6 @@ export default function ResumoMensal() {
   const handleMonthChange = (direction) => {
     let newMonth = month + direction;
     let newYear = year;
-
     if (newMonth < 1) {
       newMonth = 12;
       newYear--;
@@ -83,33 +62,30 @@ export default function ResumoMensal() {
       newMonth = 1;
       newYear++;
     }
-
     setMonth(newMonth);
     setYear(newYear);
   };
 
   return (
-    <div className="resumo-mensal" style={{ fontFamily: "'Roboto Slab', serif" }}>
-      <button className="back-to-menu-btn" onClick={() => navigate('/menu')}>
-        ← Voltar ao Menu
-      </button>
+    <div className="resumo-mensal">
+      <button className="back-to-menu-btn" onClick={() => navigate('/menu')}>← Voltar ao Menu</button>
 
-<h2>
-  Resumo Mensal -&nbsp;
-  <select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
-    {[...Array(12)].map((_, i) => (
-      <option key={i + 1} value={i + 1}>
-        {new Date(0, i).toLocaleString('pt-BR', { month: 'long' })}
-      </option>
-    ))}
-  </select>
-  &nbsp;/&nbsp;
-  <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
-    {[2023, 2024, 2025, 2026, 2027].map((y) => (
-      <option key={y} value={y}>{y}</option>
-    ))}
-  </select>
-</h2>
+      <h2>
+        Resumo Mensal -&nbsp;
+        <select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+          {[...Array(12)].map((_, i) => (
+            <option key={i + 1} value={i + 1}>
+              {new Date(0, i).toLocaleString('pt-BR', { month: 'long' })}
+            </option>
+          ))}
+        </select>
+        &nbsp;/&nbsp;
+        <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
+          {[2023, 2024, 2025, 2026, 2027, 2028, 2029].map((y) => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
+      </h2>
 
       <button onClick={resetExclusions} className="reset-btn">
         Limpar Feriados/Folgas
@@ -125,12 +101,13 @@ export default function ResumoMensal() {
           </tr>
         </thead>
         <tbody>
-          {monthData.map(({ date, hours }) => {
-            const isComplete = hours >= contractPerDay;
+          {monthData.map(({ date, hours, isWeekend, isException }) => {
+            const isExcluded = excludedDays[date] || isWeekend || isException;
+            const isComplete = hours >= 6;
             return (
               <tr key={date}>
                 <td>{new Date(date).toLocaleDateString('pt-BR')}</td>
-                <td>{hours?.toFixed(2)} h</td>
+                <td>{hours?.toFixed(2) || '0.00'} h</td>
                 <td style={{ color: isComplete ? 'green' : 'red' }}>
                   {isComplete ? '✔️' : '❌'}
                 </td>
@@ -139,6 +116,7 @@ export default function ResumoMensal() {
                     type="checkbox"
                     checked={excludedDays[date] || false}
                     onChange={() => toggleExclude(date)}
+                    disabled={isWeekend || isException}
                   />
                 </td>
               </tr>
@@ -148,8 +126,9 @@ export default function ResumoMensal() {
       </table>
 
       <div className="total-mensal">
-        <p><strong>Total Válido:</strong> {getTotalValidHours()} horas</p>
-        <p><strong>Banco de Horas:</strong> {getBancoHoras()} horas</p>
+        <p><strong>Total Trabalhado:</strong> {actualWorked} horas</p>
+        <p><strong>Esperado:</strong> {expectedHours} horas</p>
+        <p><strong>Banco de Horas:</strong> {bancoHoras} horas</p>
       </div>
     </div>
   );
