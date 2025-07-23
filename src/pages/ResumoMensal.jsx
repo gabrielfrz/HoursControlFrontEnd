@@ -106,7 +106,7 @@ export default function ResumoMensal() {
             const isComplete = hours >= 6;
             return (
               <tr key={date}>
-                <td>{new Date(date).toLocaleDateString('pt-BR')}</td>
+                <td>{new Date(date + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
                 <td>{hours?.toFixed(2) || '0.00'} h</td>
                 <td style={{ color: isComplete ? 'green' : 'red' }}>
                   {isComplete ? '✔️' : '❌'}

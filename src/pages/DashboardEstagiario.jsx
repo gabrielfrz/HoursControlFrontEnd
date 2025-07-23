@@ -57,11 +57,17 @@ const handleRegisterPoint = async () => {
   try {
     const token = localStorage.getItem('token');
 
-    const dateAtMidday = getLocalDateFromYYYYMMDD(selectedDate); 
+    // Corrige conversão de string "2025-07-22" para objeto Date seguro
+    const localDate = new Date(`${selectedDate}T12:00:00`);
+
+    if (isNaN(localDate.getTime())) {
+      toast.error('Data inválida selecionada!');
+      return;
+    }
 
     await api.post(
       '/points/register',
-      { date: dateAtMidday.toISOString() },
+      { date: localDate.toISOString() },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -71,7 +77,6 @@ const handleRegisterPoint = async () => {
     toast.error(err.response?.data?.message || 'Erro ao registrar ponto');
   }
 };
-
 
   const handleDeleteDay = async () => {
     try {
