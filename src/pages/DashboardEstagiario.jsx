@@ -20,6 +20,16 @@ export default function DashboardEstagiario() {
   const [editingPointId, setEditingPointId] = useState(null);
   const [editedTimestamp, setEditedTimestamp] = useState('');
   const navigate = useNavigate();
+  const formatDateToUTC = (date) => {
+  const localDate = new Date(date);
+  const utcDate = new Date(Date.UTC(
+    localDate.getFullYear(),
+    localDate.getMonth(),
+    localDate.getDate()
+  ));
+  return utcDate.toISOString().slice(0, 10);
+};
+
   const loadSummary = async (date = '') => {
     try {
       setLoading(true);
@@ -160,7 +170,8 @@ export default function DashboardEstagiario() {
         onChange={(date) => {
           const formatted = date.toLocaleDateString('sv-SE'); 
           setSelectedDate(formatted);
-          loadSummary(formatted);
+          loadSummary(formatDateToUTC(formatted));
+
   }}
   locale="pt-BR"
   dateFormat="dd/MM/yyyy"
