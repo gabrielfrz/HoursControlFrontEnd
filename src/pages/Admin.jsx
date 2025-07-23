@@ -29,18 +29,23 @@ export default function Admin() {
 
   const handleRegisterOrEdit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
+
     try {
-      const token = localStorage.getItem('token');
       if (editingUser) {
-        await api.put(`/users/${editingUser.id}`, {
-          name,
-          email,
-          password,
-        }, {
+        // Atualizar nome e, se fornecida, nova senha
+        const updatedData = { name };
+        if (password.trim() !== '') {
+          updatedData.password = password;
+        }
+
+        await api.put(`/users/${editingUser.id}`, updatedData, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         toast.success('Estagiário atualizado!');
       } else {
+        // Novo cadastro
         await api.post('/register', {
           name,
           email,
@@ -49,6 +54,7 @@ export default function Admin() {
         }, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         toast.success('Estagiário adicionado!');
       }
 
@@ -63,8 +69,8 @@ export default function Admin() {
     setName('');
     setEmail('');
     setPassword('');
-    setShowForm(false);
     setEditingUser(null);
+    setShowForm(false);
   };
 
   const handleEdit = (user) => {
@@ -84,29 +90,7 @@ export default function Admin() {
       toast.success('Estagiário excluído');
       loadUsers();
     } catch (err) {
-      toast.error('Erro ao excluir');
-    }
-  };
-
-  const handlePhotoChange = async (e, userId) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('photo', file);
-
-    try {
-      const token = localStorage.getItem('token');
-      const res = await api.post(`/users/upload-photo/${userId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      toast.success('Foto atualizada!');
-      loadUsers();
-    } catch (err) {
-      toast.error('Erro ao enviar foto');
+      toast.error('Erro ao excluir estagiário');
     }
   };
 
@@ -133,15 +117,18 @@ export default function Admin() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={editingUser !== null}
           />
           <input
             type="password"
-            placeholder={editingUser ? "Nova senha (opcional)" : "Senha"}
+            placeholder={editingUser ? 'Nova senha (opcional)' : 'Senha'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required={!editingUser}
-/>
-          <button type="submit">{editingUser ? 'Atualizar' : 'Cadastrar'}</button>
+          />
+          <button type="submit">
+            {editingUser ? 'Atualizar' : 'Cadastrar'}
+          </button>
           <button type="button" className="cancel-btn" onClick={resetForm}>
             Cancelar
           </button>
@@ -149,33 +136,22 @@ export default function Admin() {
       )}
 
       <h3>Lista de Estagiários</h3>
-      {users.filter(u => u.role === 'estagiario').map((u) => (
-        <div className={`user-card ${editingUser?.id === u.id ? 'edit-mode' : ''}`} key={u.id}>
-          <img
-            src={u.photoUrl || 'https://via.placeholder.com/80'}
-            alt="Foto"
-            className="user-photo"
-          />
-          <p><strong>{u.name}</strong> ({u.email}) - estagiario</p>
-
-          {editingUser?.id === u.id && (
-  <label className="upload-btn">
-    Enviar Foto
-    <input
-      type="file"
-      accept="image/*"
-      hidden
-      onChange={(e) => handlePhotoChange(e, u.id)}
-    />
-  </label>
-)}
-
-
+      {users.filter((u) => u.role === 'estagiario').map((u) => (
+        <div
+          className={`user-card ${editingUser?.id === u.id ? 'edit-mode' : ''}`}
+          key={u.id}
+        >
+          <p>
+            <strong>{u.name}</strong> ({u.email}) - estagiario
+          </p>
           <div className="action-btns">
-            <button className="edit-btn" onClick={() => handleEdit(u)}>Editar</button>
-            <button className="delete-btn" onClick={() => handleDelete(u.id)}>Excluir</button>
-</div>
-
+            <button className="edit-btn" onClick={() => handleEdit(u)}>
+              Editar
+            </button>
+            <button className="delete-btn" onClick={() => handleDelete(u.id)}>
+              Excluir
+            </button>
+          </div>
         </div>
       ))}
     </div>

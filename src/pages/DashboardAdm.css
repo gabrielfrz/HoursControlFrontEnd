@@ -118,37 +118,6 @@
   color: #555;
 }
 
-.user-photo {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 2px solid #002366;
-  margin-bottom: 10px;
-}
-
-.upload-btn {
-  display: none; /* Oculto por padrão */
-  background-color: #002366;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-top: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.user-card.edit-mode .upload-btn {
-  display: inline-block; /* Exibe apenas quando está no modo de edição */
-}
-
-.upload-btn:hover {
-  background-color: #fff;
-  color: #002366;
-  border: 2px solid #002366;
-}
 
 .action-btns {
   display: flex;

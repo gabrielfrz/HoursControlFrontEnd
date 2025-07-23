@@ -36,9 +36,10 @@ export default function DashboardEstagiario() {
   };
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    setSelectedDate(today);
-    loadSummary(today);
+    const today = new Date();
+    const localDate = today.toLocaleDateString('sv-SE'); // formato 'YYYY-MM-DD'
+    setSelectedDate(localDate);
+    loadSummary(localDate);
   }, []);
 
   const handleRegisterPoint = async () => {
@@ -59,11 +60,7 @@ export default function DashboardEstagiario() {
     }
   };
 
-  const handleDateChange = (e) => {
-    const date = e.target.value;
-    setSelectedDate(date);
-    loadSummary(date);
-  };
+  
 
   const handleDeleteDay = async () => {
     try {
@@ -161,7 +158,7 @@ export default function DashboardEstagiario() {
       <DatePicker
         selected={selectedDate ? new Date(selectedDate) : null}
         onChange={(date) => {
-          const formatted = date.toISOString().split('T')[0]; // yyyy-MM-dd
+          const formatted = date.toLocaleDateString('sv-SE'); 
           setSelectedDate(formatted);
           loadSummary(formatted);
   }}
@@ -186,11 +183,12 @@ export default function DashboardEstagiario() {
       ) : summary ? (
         <div className="summary-card">
           <p>
-            <strong>Data:</strong>{' '}
-            {summary.date
-              ? summary.date.split('T')[0].split('-').reverse().join('/')
-              : selectedDate.split('-').reverse().join('/')}
-          </p>
+           
+              <strong>Data:</strong>{' '}
+              {summary.date
+                ? new Date(summary.date).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+                : selectedDate.split('-').reverse().join('/')}
+</p>
 
           <p>
             <strong>Total Trabalhado:</strong>{' '}
