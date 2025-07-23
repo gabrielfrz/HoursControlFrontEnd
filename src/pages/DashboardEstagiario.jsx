@@ -57,13 +57,11 @@ const handleRegisterPoint = async () => {
   try {
     const token = localStorage.getItem('token');
 
-    // Cria objeto Date local com hora fixa (meio-dia)
-    const dateAtMidday = new Date(selectedDate);
-    dateAtMidday.setHours(12, 0, 0, 0); // evita problema de UTC-3
+    const dateAtMidday = getLocalDateFromYYYYMMDD(selectedDate); 
 
     await api.post(
       '/points/register',
-      { date: dateAtMidday.toISOString() }, // envia ISO com hora
+      { date: dateAtMidday.toISOString() },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -73,6 +71,7 @@ const handleRegisterPoint = async () => {
     toast.error(err.response?.data?.message || 'Erro ao registrar ponto');
   }
 };
+
 
   const handleDeleteDay = async () => {
     try {
