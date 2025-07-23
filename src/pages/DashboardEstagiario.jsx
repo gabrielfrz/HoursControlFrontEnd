@@ -3,15 +3,10 @@ import api from '../api';
 import { toast } from 'react-toastify';
 import './DashboardEstagiario.css';
 import { useNavigate } from 'react-router-dom'; 
-import DatePicker from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ptBR from 'date-fns/locale/pt-BR';
-import 'react-datepicker/dist/react-datepicker.css';
-import { registerLocale } from 'react-datepicker';
-
-
 registerLocale('pt-BR', ptBR);
-
 
 export default function DashboardEstagiario() {
   const [summary, setSummary] = useState(null);
@@ -20,15 +15,20 @@ export default function DashboardEstagiario() {
   const [editingPointId, setEditingPointId] = useState(null);
   const [editedTimestamp, setEditedTimestamp] = useState('');
   const navigate = useNavigate();
-  const formatDateToUTC = (date) => {
-  const localDate = new Date(date);
-  const utcDate = new Date(Date.UTC(
-    localDate.getFullYear(),
-    localDate.getMonth(),
-    localDate.getDate()
-  ));
-  return utcDate.toISOString().slice(0, 10);
-};
+
+  // Garantir consistência de fuso horário ao formatar para YYYY-MM-DD
+  const formatToYYYYMMDD = (dateObj) => {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Converter string "YYYY-MM-DD" para objeto Date local
+  const getLocalDateFromYYYYMMDD = (str) => {
+    const [year, month, day] = str.split('-').map(Number);
+    return new Date(year, month - 1, day, 12); // 12h para evitar fuso UTC
+  };
 
   const loadSummary = async (date = '') => {
     try {
@@ -47,30 +47,26 @@ export default function DashboardEstagiario() {
 
   useEffect(() => {
     const today = new Date();
-    const localDate = today.toLocaleDateString('sv-SE'); // formato 'YYYY-MM-DD'
-    setSelectedDate(localDate);
-    loadSummary(localDate);
+    today.setHours(12, 0, 0, 0); // evitar UTC-3 de madrugada
+    const formatted = formatToYYYYMMDD(today);
+    setSelectedDate(formatted);
+    loadSummary(formatted);
   }, []);
 
   const handleRegisterPoint = async () => {
     try {
       const token = localStorage.getItem('token');
-      const dateToSend = selectedDate || null;
-
       await api.post(
         '/points/register',
-        { date: dateToSend },
+        { date: selectedDate },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       toast.success('Ponto registrado com sucesso!');
       loadSummary(selectedDate);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erro ao registrar ponto');
     }
   };
-
-  
 
   const handleDeleteDay = async () => {
     try {
@@ -108,13 +104,11 @@ export default function DashboardEstagiario() {
     try {
       const token = localStorage.getItem('token');
       const correctedTimestamp = new Date(editedTimestamp).toISOString();
-
       await api.put(
         `/points/edit/${pointId}`,
         { timestamp: correctedTimestamp },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       toast.success("Horário atualizado!");
       setEditingPointId(null);
       loadSummary(selectedDate);
@@ -140,15 +134,19 @@ export default function DashboardEstagiario() {
   const isFuture = selectedDate && new Date(selectedDate) > new Date();
   const podeRegistrar = pontosRegistrados < 4 && !isFuture;
 
-  
-
   return (
     <div className="estagiario-dashboard">
       <button className="back-dashboard-btn" onClick={() => navigate('/menu')}>
         ← Voltar ao Menu
       </button>
 
-      
+<button
+  className="resumo-mensal-btn"
+  onClick={() => navigate('/resumo-mensal')}
+>
+  📊 Ver Resumo Mensal
+</button>
+
       <h2>Seu Ponto</h2>
 
       <button
@@ -156,7 +154,7 @@ export default function DashboardEstagiario() {
         onClick={handleRegisterPoint}
         disabled={!podeRegistrar}
       >
-        Registrar Ponto
+        ➕ Registrar Ponto
       </button>
 
       {!podeRegistrar && (
@@ -165,28 +163,31 @@ export default function DashboardEstagiario() {
         </p>
       )}
 
-      <DatePicker
-        selected={selectedDate ? new Date(selectedDate) : null}
-        onChange={(date) => {
-          const formatted = date.toLocaleDateString('sv-SE'); 
-          setSelectedDate(formatted);
-          loadSummary(formatDateToUTC(formatted));
-
-  }}
-  locale="pt-BR"
-  dateFormat="dd/MM/yyyy"
-  className="date-input"
-  placeholderText="Selecione a data"
-  withPortal // importante para celulares
-  showPopperArrow={false}
-/>
+      <div style={{ marginTop: '15px' }}>
+        <label><strong>Selecionar Data:</strong></label>
+        <DatePicker
+          selected={selectedDate ? getLocalDateFromYYYYMMDD(selectedDate) : null}
+          onChange={(date) => {
+            const dateAtMidday = new Date(date);
+            dateAtMidday.setHours(12, 0, 0, 0);
+            const formatted = formatToYYYYMMDD(dateAtMidday);
+            setSelectedDate(formatted);
+            loadSummary(formatted);
+          }}
+          locale="pt-BR"
+          dateFormat="dd/MM/yyyy"
+          className="date-input"
+          withPortal
+          showPopperArrow={false}
+        />
+      </div>
 
       <button
         className="delete-day-btn"
         onClick={handleDeleteDay}
         style={{ marginTop: '10px' }}
       >
-        Apagar todos os pontos do dia
+        🗑️ Apagar todos os pontos do dia
       </button>
 
       {loading ? (
@@ -194,18 +195,8 @@ export default function DashboardEstagiario() {
       ) : summary ? (
         <div className="summary-card">
           <p>
-           
-              <strong>Data:</strong>{' '}
-              {summary.date
-                ? new Date(summary.date).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
-                : selectedDate.split('-').reverse().join('/')}
-</p>
-
-          <p>
-            <strong>Total Trabalhado:</strong>{' '}
-            {Number(summary.totalHours || 0).toFixed(2)} horas
+            <strong>Total Trabalhado:</strong> {Number(summary.totalHours || 0).toFixed(2)} horas
           </p>
-
           <p>
             <strong>Status:</strong>{' '}
             <span style={{ color: getStatusColor(summary.totalHours), fontWeight: 600 }}>

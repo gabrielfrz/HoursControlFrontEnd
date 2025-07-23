@@ -6,6 +6,8 @@ import DashboardEstagiario from './pages/DashboardEstagiario';
 import DashboardAdm from './pages/DashboardAdm';
 import Admin from './pages/Admin';
 import Register from './pages/Register';
+import ResumoMensal from './pages/ResumoMensal';
+
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -20,11 +22,12 @@ export default function App() {
         <Route path="/dashboard-estagiario" element={<DashboardEstagiario />} />
         <Route path="/dashboard-adm" element={<DashboardAdm />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/resumo-mensal" element={<ResumoMensal />} />
 
-        {/* ✅ Adicionado para permitir acessar "/dashboard" */}
+        
         <Route path="/dashboard" element={<DashboardEstagiario />} />
 
-        {/* ✅ Caso queira evitar erros de rota inválida, pode adicionar fallback */}
+      
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <ToastContainer />

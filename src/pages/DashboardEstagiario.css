@@ -372,3 +372,32 @@
     font-size: 1rem;
   }
 }
+
+.resumo-mensal-btn {
+  background-color: #0e2d64;
+  color: white;
+  padding: 0.8rem 1.6rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-top: 10px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.resumo-mensal-btn:hover {
+  background-color: white;
+  color: #0e2d64;
+  border: 2px solid #0e2d64;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+  .resumo-mensal-btn {
+    font-size: 0.95rem;
+    padding: 0.7rem 1.2rem;
+  }
+}
