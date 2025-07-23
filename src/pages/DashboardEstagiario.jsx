@@ -53,20 +53,26 @@ export default function DashboardEstagiario() {
     loadSummary(formatted);
   }, []);
 
-  const handleRegisterPoint = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      await api.post(
-        '/points/register',
-        { date: selectedDate },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Ponto registrado com sucesso!');
-      loadSummary(selectedDate);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Erro ao registrar ponto');
-    }
-  };
+const handleRegisterPoint = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    // Cria objeto Date local com hora fixa (meio-dia)
+    const dateAtMidday = new Date(selectedDate);
+    dateAtMidday.setHours(12, 0, 0, 0); // evita problema de UTC-3
+
+    await api.post(
+      '/points/register',
+      { date: dateAtMidday.toISOString() }, // envia ISO com hora
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success('Ponto registrado com sucesso!');
+    loadSummary(selectedDate);
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Erro ao registrar ponto');
+  }
+};
 
   const handleDeleteDay = async () => {
     try {
