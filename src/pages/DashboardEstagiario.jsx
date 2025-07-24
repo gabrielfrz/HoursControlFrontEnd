@@ -57,7 +57,7 @@ const handleRegisterPoint = async () => {
   try {
     const token = localStorage.getItem('token');
 
-    // Corrige conversão de string "2025-07-22" para objeto Date seguro
+    // Confirma validade da data no formato YYYY-MM-DD
     const localDate = new Date(`${selectedDate}T12:00:00`);
 
     if (isNaN(localDate.getTime())) {
@@ -67,7 +67,7 @@ const handleRegisterPoint = async () => {
 
     await api.post(
       '/points/register',
-      { date: localDate.toISOString() },
+      { date: selectedDate }, // <-- Aqui está a correção
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -77,6 +77,7 @@ const handleRegisterPoint = async () => {
     toast.error(err.response?.data?.message || 'Erro ao registrar ponto');
   }
 };
+
 
   const handleDeleteDay = async () => {
     try {
@@ -141,8 +142,21 @@ const handleRegisterPoint = async () => {
 
   const pontosHoje = summary?.points || [];
   const pontosRegistrados = pontosHoje.length;
-  const isFuture = selectedDate && new Date(selectedDate) > new Date();
-  const podeRegistrar = pontosRegistrados < 4 && !isFuture;
+  const isFuture = (() => {
+    if (!selectedDate) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // zera horário
+
+    const [year, month, day] = selectedDate.split('-').map(Number);
+    const selected = new Date(year, month - 1, day);
+    selected.setHours(0, 0, 0, 0);
+
+  return selected > today;
+
+})();
+  
+const podeRegistrar = pontosRegistrados < 4 && !isFuture;
 
   return (
     <div className="estagiario-dashboard">

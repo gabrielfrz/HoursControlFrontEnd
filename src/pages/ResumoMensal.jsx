@@ -11,7 +11,6 @@ export default function ResumoMensal() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
   const [monthData, setMonthData] = useState([]);
-  const [excludedDays, setExcludedDays] = useState({});
   const [expectedHours, setExpectedHours] = useState(0);
   const [actualWorked, setActualWorked] = useState(0);
   const [bancoHoras, setBancoHoras] = useState(0);
@@ -41,29 +40,30 @@ export default function ResumoMensal() {
     fetchMonthSummary();
   }, [year, month]);
 
-  const toggleExclude = (date) => {
-    setExcludedDays((prev) => ({
-      ...prev,
-      [date]: !prev[date],
-    }));
-  };
-
-  const resetExclusions = () => {
-    setExcludedDays({});
-  };
-
-  const handleMonthChange = (direction) => {
-    let newMonth = month + direction;
-    let newYear = year;
-    if (newMonth < 1) {
-      newMonth = 12;
-      newYear--;
-    } else if (newMonth > 12) {
-      newMonth = 1;
-      newYear++;
+  const handleExceptionChange = async (date, type) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.post('/points/set-exception', { date, type }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Exceção atualizada');
+      fetchMonthSummary(); // refaz o cálculo
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erro ao atualizar exceção');
     }
-    setMonth(newMonth);
-    setYear(newYear);
+  };
+
+  const resetExceptions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.delete(`/points/reset-exceptions/${year}/${month}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Exceções limpas');
+      fetchMonthSummary();
+    } catch (err) {
+      toast.error('Erro ao limpar exceções');
+    }
   };
 
   return (
@@ -81,13 +81,13 @@ export default function ResumoMensal() {
         </select>
         &nbsp;/&nbsp;
         <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
-          {[2023, 2024, 2025, 2026, 2027, 2028, 2029].map((y) => (
+          {[2023, 2024, 2025, 2026].map((y) => (
             <option key={y} value={y}>{y}</option>
           ))}
         </select>
       </h2>
 
-      <button onClick={resetExclusions} className="reset-btn">
+      <button onClick={resetExceptions} className="reset-btn">
         Limpar Feriados/Folgas
       </button>
 
@@ -97,27 +97,39 @@ export default function ResumoMensal() {
             <th>Data</th>
             <th>Horas Trabalhadas</th>
             <th>Status</th>
-            <th>Feriado/Folga</th>
+            <th>Exceção</th>
           </tr>
         </thead>
         <tbody>
-          {monthData.map(({ date, hours, isWeekend, isException }) => {
-            const isExcluded = excludedDays[date] || isWeekend || isException;
+          {monthData.map(({ date, hours, isWeekend, exceptionType }) => {
             const isComplete = hours >= 6;
+
             return (
-              <tr key={date}>
+              <tr
+                key={date}
+                className={
+                  exceptionType === 'feriado'
+                    ? 'exception-feriado'
+                    : exceptionType === 'folga'
+                    ? 'exception-folga'
+                    : ''
+                }
+              >
                 <td>{new Date(date + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
                 <td>{hours?.toFixed(2) || '0.00'} h</td>
                 <td style={{ color: isComplete ? 'green' : 'red' }}>
                   {isComplete ? '✔️' : '❌'}
                 </td>
                 <td>
-                  <input
-                    type="checkbox"
-                    checked={excludedDays[date] || false}
-                    onChange={() => toggleExclude(date)}
-                    disabled={isWeekend || isException}
-                  />
+                  <select
+                    value={exceptionType || ''}
+                    onChange={(e) => handleExceptionChange(date, e.target.value)}
+                    disabled={isWeekend}
+                  >
+                    <option value="">Nenhuma</option>
+                    <option value="feriado">Feriado</option>
+                    <option value="folga">Folga</option>
+                  </select>
                 </td>
               </tr>
             );

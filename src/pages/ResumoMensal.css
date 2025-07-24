@@ -171,3 +171,10 @@ td span.fail {
     gap: 5px;
   }
 }
+
+tr.exception-feriado {
+  background-color: #d4f1f4; /* azul claro */
+}
+tr.exception-folga {
+  background-color: #fff3cd; /* amarelo claro */
+}
