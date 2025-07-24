@@ -7,6 +7,8 @@ import DashboardAdm from './pages/DashboardAdm';
 import Admin from './pages/Admin';
 import Register from './pages/Register';
 import ResumoMensal from './pages/ResumoMensal';
+import AlterarSenha from "./pages/AlterarSenha";
+
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,6 +25,7 @@ export default function App() {
         <Route path="/dashboard-adm" element={<DashboardAdm />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/resumo-mensal" element={<ResumoMensal />} />
+        <Route path="/alterar-senha" element={<AlterarSenha />} />
 
         
         <Route path="/dashboard" element={<DashboardEstagiario />} />

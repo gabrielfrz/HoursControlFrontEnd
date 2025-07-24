@@ -1,0 +1,80 @@
+.senha-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f3f6f9;
+  padding: 20px;
+}
+
+.senha-card {
+  background-color: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.senha-card h2 {
+  margin-bottom: 20px;
+  color: #1e2a78;
+}
+
+.senha-input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.senha-input-group label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.senha-input-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border 0.3s;
+}
+
+.senha-input-group input:focus {
+  outline: none;
+  border-color: #1e2a78;
+}
+
+.senha-save-btn {
+  background-color: #1e2a78;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  width: 100%;
+}
+
+.senha-save-btn:hover {
+  background-color: #15205a;
+  transform: scale(1.02);
+}
+
+@media (max-width: 500px) {
+  .senha-card {
+    padding: 25px 20px;
+  }
+
+  .senha-input-group label,
+  .senha-save-btn {
+    font-size: 1rem;
+  }
+}

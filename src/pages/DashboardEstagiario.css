@@ -401,3 +401,41 @@
     padding: 0.7rem 1.2rem;
   }
 }
+
+.senha-footer-container {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.senha-footer-btn {
+  background-color: #3949ab;
+  color: white;
+  padding: 0.8rem 1.6rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.senha-footer-btn:hover {
+  background-color: #fff;
+  color: #3949ab;
+  border: 2px solid #3949ab;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+  .senha-footer-btn {
+    width: 90%;
+    font-size: 0.95rem;
+    padding: 0.7rem 1.2rem;
+  }
+}

@@ -171,6 +171,8 @@ const podeRegistrar = pontosRegistrados < 4 && !isFuture;
   📊 Ver Resumo Mensal
 </button>
 
+
+
       <h2>Seu Ponto</h2>
 
       <button
@@ -280,6 +282,7 @@ const podeRegistrar = pontosRegistrados < 4 && !isFuture;
                         Excluir
                       </button>
                     </>
+                    
                   )}
                 </div>
               </div>
@@ -289,6 +292,15 @@ const podeRegistrar = pontosRegistrados < 4 && !isFuture;
       ) : (
         <p>Sem registros para esta data.</p>
       )}
+<div className="senha-footer-container">
+  <button
+    className="senha-footer-btn"
+    onClick={() => navigate('/alterar-senha')}
+  >
+    🔒 Alterar Senha
+  </button>
+</div>
+
     </div>
   );
 }
