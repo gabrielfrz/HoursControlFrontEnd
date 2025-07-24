@@ -3,6 +3,9 @@ import api from '../api';
 import './ResumoMensal.css';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+  import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'; 
+
 
 export default function ResumoMensal() {
   const now = new Date();
@@ -15,6 +18,7 @@ export default function ResumoMensal() {
   const [actualWorked, setActualWorked] = useState(0);
   const [bancoHoras, setBancoHoras] = useState(0);
 
+  // Buscar dados do mês selecionado
   const fetchMonthSummary = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -40,6 +44,7 @@ export default function ResumoMensal() {
     fetchMonthSummary();
   }, [year, month]);
 
+  // Atualizar exceção (feriado/folga)
   const handleExceptionChange = async (date, type) => {
     try {
       const token = localStorage.getItem('token');
@@ -47,28 +52,63 @@ export default function ResumoMensal() {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Exceção atualizada');
-      fetchMonthSummary(); // refaz o cálculo
+      fetchMonthSummary();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erro ao atualizar exceção');
     }
   };
 
-  const resetExceptions = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      await api.delete(`/points/reset-exceptions/${year}/${month}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Exceções limpas');
-      fetchMonthSummary();
-    } catch (err) {
-      toast.error('Erro ao limpar exceções');
-    }
-  };
+
+
+// Exportar resumo mensal em PDF
+const exportarPdf = () => {
+  const doc = new jsPDF();
+  const nomeMes = new Date(0, month - 1).toLocaleString('pt-BR', { month: 'long' });
+  const userName = localStorage.getItem('userName') || 'Usuário'; // ← pega nome salvo
+
+  const titulo = `Resumo Mensal - ${nomeMes} / ${year}`;
+  doc.setFontSize(16);
+  doc.text(titulo, 14, 20);
+
+  
+  doc.setFontSize(12);
+  doc.text(`Gerado por: ${userName}`, 14, 28);
+
+  const tableData = monthData.map(({ date, hours, exceptionType }) => {
+    const dataFormatada = new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
+    const status = hours >= 6 ? 'OK' : 'X';
+    const excecao = exceptionType === 'feriado' ? 'Feriado' : exceptionType === 'folga' ? 'Folga' : '';
+    return [dataFormatada, `${hours.toFixed(2)} h`, status, excecao];
+  });
+
+  autoTable(doc, {
+    startY: 35,
+    head: [['Data', 'Horas Trabalhadas', 'Status', 'Exceção']],
+    body: tableData,
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [14, 45, 100] },
+  });
+
+  const posFinal = doc.lastAutoTable.finalY + 10;
+  doc.setFontSize(12);
+  doc.text(`Total Trabalhado: ${actualWorked} horas`, 14, posFinal);
+  doc.text(`Esperado: ${expectedHours} horas`, 14, posFinal + 7);
+  doc.text(`Banco de Horas: ${bancoHoras} horas`, 14, posFinal + 14);
+
+  doc.save(`resumo_${nomeMes}_${year}.pdf`);
+};
+
 
   return (
     <div className="resumo-mensal">
-      <button className="back-to-menu-btn" onClick={() => navigate('/menu')}>← Voltar ao Menu</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+        <button className="back-to-menu-btn" onClick={() => navigate('/menu')}>
+          ← Voltar ao Menu
+        </button>
+        <button className="exportar-btn" onClick={exportarPdf}>
+          Exportar PDF
+        </button>
+      </div>
 
       <h2>
         Resumo Mensal -&nbsp;
@@ -86,10 +126,6 @@ export default function ResumoMensal() {
           ))}
         </select>
       </h2>
-
-      <button onClick={resetExceptions} className="reset-btn">
-        Limpar Feriados/Folgas
-      </button>
 
       <table>
         <thead>
@@ -115,12 +151,16 @@ export default function ResumoMensal() {
                     : ''
                 }
               >
-                <td>{new Date(date + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
-                <td>{hours?.toFixed(2) || '0.00'} h</td>
-                <td style={{ color: isComplete ? 'green' : 'red' }}>
+                <td data-label="Data">
+                  {new Date(date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                </td>
+                <td data-label="Horas Trabalhadas">
+                  {hours?.toFixed(2) || '0.00'} h
+                </td>
+                <td data-label="Status" style={{ color: isComplete ? 'green' : 'red' }}>
                   {isComplete ? '✔️' : '❌'}
                 </td>
-                <td>
+                <td data-label="Exceção">
                   <select
                     value={exceptionType || ''}
                     onChange={(e) => handleExceptionChange(date, e.target.value)}
@@ -141,6 +181,9 @@ export default function ResumoMensal() {
         <p><strong>Total Trabalhado:</strong> {actualWorked} horas</p>
         <p><strong>Esperado:</strong> {expectedHours} horas</p>
         <p><strong>Banco de Horas:</strong> {bancoHoras} horas</p>
+        <p style={{ fontSize: '0.9rem', color: '#666' }}>
+          Folgas consomem banco de horas. Feriados não contam como dia esperado.
+        </p>
       </div>
     </div>
   );

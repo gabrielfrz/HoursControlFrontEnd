@@ -19,7 +19,10 @@ export default function Login() {
         toast.error('Você não é estagiário!');
         return;
       }
+
       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('userName', res.data.user.name); 
+
       toast.success('Login realizado!');
       navigate('/dashboard-estagiario'); 
     } catch (err) {

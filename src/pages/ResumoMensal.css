@@ -1,133 +1,150 @@
-.resumo-mensal {
-  padding: 24px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-  max-width: 960px;
-  margin: auto;
-  font-family: 'Roboto Slab', serif;
-  color: #222;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --primary-color: #0e2d64;
+  --accent-color: #f44336;
+  --light-gray: #f4f6f8;
+  --gray: #d0d4da;
+  --dark-gray: #333;
+  --success: #2e7d32;
+  --error: #d32f2f;
+  --feriado-bg: #e0f7fa;
+  --folga-bg: #fff8e1;
 }
 
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #f9fbfc;
+}
+
+.resumo-mensal {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  color: var(--dark-gray);
+}
+
+/* Título + selects */
 .resumo-mensal h2 {
   text-align: center;
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
 }
 
-/* Botão voltar */
-.back-to-menu-btn {
-  background-color: #0e2d64;
-  color: white;
-  font-weight: 600;
+/* Botões */
+.back-to-menu-btn,
+.reset-btn {
   padding: 10px 18px;
-  border-radius: 8px;
   border: none;
-  margin-bottom: 20px;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.back-to-menu-btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  margin-bottom: 20px;
 }
 .back-to-menu-btn:hover {
   background-color: #143d85;
 }
 
-/* Botão limpar */
 .reset-btn {
-  background-color: #f44336;
-  color: #fff;
-  padding: 8px 16px;
-  border: none;
-  font-weight: bold;
-  border-radius: 8px;
-  margin: 10px 0;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  background-color: var(--accent-color);
+  color: white;
+  margin-bottom: 20px;
 }
 .reset-btn:hover {
   background-color: #c62828;
 }
 
-/* Selects mês/ano */
+/* Selects */
 .resumo-mensal select {
-  padding: 6px 12px;
+  padding: 8px 14px;
+  border: 1px solid var(--gray);
   border-radius: 6px;
-  border: 1px solid #ccc;
   font-size: 1rem;
   transition: border 0.3s ease;
+  background-color: #fff;
 }
 .resumo-mensal select:hover {
-  border-color: #0e2d64;
+  border-color: var(--primary-color);
 }
 
-/* Tabela geral */
+/* Tabela */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 24px;
+  margin-top: 1rem;
 }
+
 thead {
-  background-color: #f0f0f0;
+  background-color: var(--light-gray);
 }
+
 th, td {
-  padding: 12px;
+  padding: 12px 10px;
   text-align: center;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #e0e0e0;
   font-size: 0.95rem;
 }
-td input[type="checkbox"] {
-  transform: scale(1.2);
+
+tr.exception-feriado {
+  background-color: var(--feriado-bg);
 }
 
-/* Estilos para dias especiais */
-tr.weekend {
-  background-color: #f8f9fa; /* cinza claro */
-  color: #666;
-}
-tr.exception {
-  background-color: #fff6e6; /* amarelo claro */
-}
-tr.excluded {
-  background-color: #fdecea; /* rosa claro */
+tr.exception-folga {
+  background-color: var(--folga-bg);
 }
 
-/* Ícones */
 td span.success {
-  color: green;
+  color: var(--success);
   font-weight: bold;
 }
 td span.fail {
-  color: red;
+  color: var(--error);
   font-weight: bold;
 }
 
 /* Painel total */
 .total-mensal {
-  background-color: #e6fcff;
+  background-color: var(--light-gray);
+  margin-top: 2rem;
   padding: 20px;
-  border-radius: 10px;
-  font-size: 1rem;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  font-size: 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.03);
 }
+
 .total-mensal p {
-  margin: 10px 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 .total-mensal p::before {
   content: "⏱️";
 }
 
-/* RESPONSIVIDADE */
+/* RESPONSIVO */
 @media (max-width: 768px) {
-  .resumo-mensal {
-    padding: 16px;
+  .resumo-mensal h2 {
+    flex-direction: column;
+    font-size: 1.4rem;
   }
 
   table thead {
@@ -140,41 +157,44 @@ td span.fail {
   }
 
   tr {
-    background-color: #f9f9f9;
     margin-bottom: 16px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     border-radius: 8px;
-    box-shadow: 0 0 4px rgba(0,0,0,0.1);
-    padding: 12px;
+    overflow: hidden;
+    padding: 10px;
   }
 
   td {
     text-align: left;
-    padding: 8px 12px;
-    font-size: 0.95rem;
+    padding: 8px 10px;
+    border-bottom: none;
     position: relative;
   }
 
   td::before {
     content: attr(data-label);
-    font-weight: bold;
+    font-weight: 600;
     display: block;
-    margin-bottom: 4px;
     color: #555;
+    margin-bottom: 4px;
   }
 
   .total-mensal {
-    font-size: 0.95rem;
-  }
-
-  .resumo-mensal h2 {
-    flex-direction: column;
-    gap: 5px;
+    font-size: 1rem;
   }
 }
 
-tr.exception-feriado {
-  background-color: #d4f1f4; /* azul claro */
+.exportar-btn {
+  background-color: #0e8e4f;
+  color: white;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
-tr.exception-folga {
-  background-color: #fff3cd; /* amarelo claro */
+.exportar-btn:hover {
+  background-color: #09683a;
 }
