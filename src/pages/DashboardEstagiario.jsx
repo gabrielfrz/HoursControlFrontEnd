@@ -249,9 +249,16 @@ return (
       <p>Carregando...</p>
     ) : summary ? (
       <div className="summary-card">
-        <p>
-          <strong>Total Trabalhado:</strong> {Number(summary.totalHours || 0).toFixed(2)} horas
-        </p>
+        {(() => {
+          const total = Number(summary.totalHours || 0);
+          const horas = Math.floor(total);
+          const minutos = Math.round((total - horas) * 60);
+          return (
+    <p>
+      <strong>Total Trabalhado:</strong> {horas}h {minutos}min
+    </p>
+  );
+})()}
         <p>
           <strong>Status:</strong>{' '}
           <span style={{ color: getStatusColor(summary.totalHours), fontWeight: 600 }}>
