@@ -3,8 +3,8 @@ import api from '../api';
 import './ResumoMensal.css';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-  import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'; 
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 function formatHorasMinutos(decimal) {
   const horas = Math.floor(decimal);
@@ -22,8 +22,14 @@ export default function ResumoMensal() {
   const [expectedHours, setExpectedHours] = useState(0);
   const [actualWorked, setActualWorked] = useState(0);
   const [bancoHoras, setBancoHoras] = useState(0);
+  const defaultGoal = Number(localStorage.getItem('dailyGoal')) || 6;
+  const [dailyGoal, setDailyGoal] = useState(defaultGoal);
 
-  // Buscar dados do mês selecionado
+  const handleDailyGoalChange = (value) => {
+    setDailyGoal(value);
+    localStorage.setItem('dailyGoal', value);
+  };
+
   const fetchMonthSummary = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -33,9 +39,15 @@ export default function ResumoMensal() {
 
       if (res.data?.days) {
         setMonthData(res.data.days);
-        setExpectedHours(res.data.expectedHours || 0);
         setActualWorked(res.data.actualWorked || 0);
-        setBancoHoras(res.data.bancoHoras || 0);
+
+        const diasUteis = res.data.days.filter(
+          (d) => !d.isWeekend && !['feriado', 'folga'].includes(d.exceptionType)
+        ).length;
+
+        const expected = dailyGoal * diasUteis;
+        setExpectedHours(expected);
+        setBancoHoras((res.data.actualWorked || 0) - expected);
       } else {
         setMonthData([]);
         toast.warn('Nenhum dado encontrado para esse mês.');
@@ -47,15 +59,18 @@ export default function ResumoMensal() {
 
   useEffect(() => {
     fetchMonthSummary();
-  }, [year, month]);
+  }, [year, month, dailyGoal]);
 
-  // Atualizar exceção (feriado/folga)
   const handleExceptionChange = async (date, type) => {
     try {
       const token = localStorage.getItem('token');
-      await api.post('/points/set-exception', { date, type }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post(
+        '/points/set-exception',
+        { date, type },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       toast.success('Exceção atualizada');
       fetchMonthSummary();
     } catch (err) {
@@ -63,47 +78,51 @@ export default function ResumoMensal() {
     }
   };
 
+  const exportarPdf = () => {
+    const doc = new jsPDF();
+    const nomeMes = new Date(0, month - 1).toLocaleString('pt-BR', {
+      month: 'long',
+    });
+    const userName = localStorage.getItem('userName') || 'Usuário';
 
+    const titulo = `Resumo Mensal - ${nomeMes} / ${year}`;
+    doc.setFontSize(16);
+    doc.text(titulo, 14, 20);
 
-// Exportar resumo mensal em PDF
-const exportarPdf = () => {
-  const doc = new jsPDF();
-  const nomeMes = new Date(0, month - 1).toLocaleString('pt-BR', { month: 'long' });
-  const userName = localStorage.getItem('userName') || 'Usuário'; // ← pega nome salvo
+    doc.setFontSize(12);
+    doc.text(`Gerado por: ${userName}`, 14, 28);
 
-  const titulo = `Resumo Mensal - ${nomeMes} / ${year}`;
-  doc.setFontSize(16);
-  doc.text(titulo, 14, 20);
+    const tableData = monthData.map(({ date, hours, exceptionType }) => {
+      const dataFormatada = new Date(date + 'T12:00:00').toLocaleDateString(
+        'pt-BR'
+      );
+      const status = hours >= dailyGoal ? 'OK' : 'X';
+      const excecao =
+        exceptionType === 'feriado'
+          ? 'Feriado'
+          : exceptionType === 'folga'
+          ? 'Folga'
+          : '';
+      return [dataFormatada, formatHorasMinutos(hours || 0), status, excecao];
+    });
 
-  
-  doc.setFontSize(12);
-  doc.text(`Gerado por: ${userName}`, 14, 28);
+    autoTable(doc, {
+      startY: 35,
+      head: [['Data', 'Horas Trabalhadas', 'Status', 'Exceção']],
+      body: tableData,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [14, 45, 100] },
+    });
 
-  const tableData = monthData.map(({ date, hours, exceptionType }) => {
-    const dataFormatada = new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
-    const status = hours >= 6 ? 'OK' : 'X';
-    const excecao = exceptionType === 'feriado' ? 'Feriado' : exceptionType === 'folga' ? 'Folga' : '';
-    return [dataFormatada, formatHorasMinutos(hours || 0), status, excecao];
-  });
+    const posFinal = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.text(`Meta Diária: ${dailyGoal}h`, 14, posFinal);
+    doc.text(`Total Trabalhado: ${formatHorasMinutos(actualWorked)}`, 14, posFinal + 7);
+    doc.text(`Esperado: ${formatHorasMinutos(expectedHours)}`, 14, posFinal + 14);
+    doc.text(`Banco de Horas: ${formatHorasMinutos(bancoHoras)}`, 14, posFinal + 21);
 
-  autoTable(doc, {
-    startY: 35,
-    head: [['Data', 'Horas Trabalhadas', 'Status', 'Exceção']],
-    body: tableData,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [14, 45, 100] },
-  });
-
-  const posFinal = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(12);
-  doc.text(`Total Trabalhado: ${formatHorasMinutos(actualWorked)}`, 14, posFinal);
-  doc.text(`Esperado: ${formatHorasMinutos(expectedHours)}`, 14, posFinal + 7);
-  doc.text(`Banco de Horas: ${formatHorasMinutos(bancoHoras)}`, 14, posFinal + 14);
-
-
-  doc.save(`resumo_${nomeMes}_${year}.pdf`);
-};
-
+    doc.save(`resumo_${nomeMes}_${year}.pdf`);
+  };
 
   return (
     <div className="resumo-mensal">
@@ -128,10 +147,20 @@ const exportarPdf = () => {
         &nbsp;/&nbsp;
         <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
           {[2023, 2024, 2025, 2026].map((y) => (
-            <option key={y} value={y}>{y}</option>
+            <option key={y} value={y}>
+              {y}
+            </option>
           ))}
         </select>
       </h2>
+
+      <div style={{ margin: '10px 0' }}>
+        <label><strong>Meta diária de horas:&nbsp;</strong></label>
+        <select value={dailyGoal} onChange={(e) => handleDailyGoalChange(Number(e.target.value))}>
+          <option value={4}>4 horas</option>
+          <option value={6}>6 horas</option>
+        </select>
+      </div>
 
       <table>
         <thead>
@@ -144,8 +173,7 @@ const exportarPdf = () => {
         </thead>
         <tbody>
           {monthData.map(({ date, hours, isWeekend, exceptionType }) => {
-            const isComplete = hours >= 6;
-
+            const isComplete = hours >= dailyGoal;
             return (
               <tr
                 key={date}
@@ -160,9 +188,7 @@ const exportarPdf = () => {
                 <td data-label="Data">
                   {new Date(date + 'T12:00:00').toLocaleDateString('pt-BR')}
                 </td>
-                <td data-label="Horas Trabalhadas">
-                  {formatHorasMinutos(hours || 0)}
-                </td>
+                <td data-label="Horas Trabalhadas">{formatHorasMinutos(hours || 0)}</td>
                 <td data-label="Status" style={{ color: isComplete ? 'green' : 'red' }}>
                   {isComplete ? '✔️' : '❌'}
                 </td>
