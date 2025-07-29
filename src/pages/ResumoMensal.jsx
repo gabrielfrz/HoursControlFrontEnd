@@ -6,6 +6,11 @@ import { useNavigate } from 'react-router-dom';
   import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable'; 
 
+function formatHorasMinutos(decimal) {
+  const horas = Math.floor(decimal);
+  const minutos = Math.round((decimal - horas) * 60);
+  return `${horas}h ${minutos}min`;
+}
 
 export default function ResumoMensal() {
   const now = new Date();
@@ -78,7 +83,7 @@ const exportarPdf = () => {
     const dataFormatada = new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
     const status = hours >= 6 ? 'OK' : 'X';
     const excecao = exceptionType === 'feriado' ? 'Feriado' : exceptionType === 'folga' ? 'Folga' : '';
-    return [dataFormatada, `${hours.toFixed(2)} h`, status, excecao];
+    return [dataFormatada, formatHorasMinutos(hours || 0), status, excecao];
   });
 
   autoTable(doc, {
@@ -91,9 +96,10 @@ const exportarPdf = () => {
 
   const posFinal = doc.lastAutoTable.finalY + 10;
   doc.setFontSize(12);
-  doc.text(`Total Trabalhado: ${actualWorked} horas`, 14, posFinal);
-  doc.text(`Esperado: ${expectedHours} horas`, 14, posFinal + 7);
-  doc.text(`Banco de Horas: ${bancoHoras} horas`, 14, posFinal + 14);
+  doc.text(`Total Trabalhado: ${formatHorasMinutos(actualWorked)}`, 14, posFinal);
+  doc.text(`Esperado: ${formatHorasMinutos(expectedHours)}`, 14, posFinal + 7);
+  doc.text(`Banco de Horas: ${formatHorasMinutos(bancoHoras)}`, 14, posFinal + 14);
+
 
   doc.save(`resumo_${nomeMes}_${year}.pdf`);
 };
@@ -155,7 +161,7 @@ const exportarPdf = () => {
                   {new Date(date + 'T12:00:00').toLocaleDateString('pt-BR')}
                 </td>
                 <td data-label="Horas Trabalhadas">
-                  {hours?.toFixed(2) || '0.00'} h
+                  {formatHorasMinutos(hours || 0)}
                 </td>
                 <td data-label="Status" style={{ color: isComplete ? 'green' : 'red' }}>
                   {isComplete ? '✔️' : '❌'}
@@ -178,9 +184,9 @@ const exportarPdf = () => {
       </table>
 
       <div className="total-mensal">
-        <p><strong>Total Trabalhado:</strong> {actualWorked} horas</p>
-        <p><strong>Esperado:</strong> {expectedHours} horas</p>
-        <p><strong>Banco de Horas:</strong> {bancoHoras} horas</p>
+        <p><strong>Total Trabalhado:</strong> {formatHorasMinutos(actualWorked)}</p>
+        <p><strong>Esperado:</strong> {formatHorasMinutos(expectedHours)}</p>
+        <p><strong>Banco de Horas:</strong> {formatHorasMinutos(bancoHoras)}</p>
         <p style={{ fontSize: '0.9rem', color: '#666' }}>
           Folgas consomem banco de horas. Feriados não contam como dia esperado.
         </p>
