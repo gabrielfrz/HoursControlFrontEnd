@@ -170,6 +170,26 @@ return (
 
     <h2>Seu Ponto</h2>
 
+<div style={{ marginBottom: '15px' }}>
+  <label htmlFor="quantidadePontos"><strong>Quantos pontos você usará hoje?</strong></label>
+  <select
+    id="quantidadePontos"
+    value={localStorage.getItem('quantidadePontos') || ''}
+    onChange={(e) => {
+      const value = e.target.value;
+      localStorage.setItem('quantidadePontos', value);
+      toast.info(`Modo de ${value} pontos selecionado`);
+      loadSummary(selectedDate);
+    }}
+    className="point-selector"
+  >
+    <option value="">-- Selecione --</option>
+    <option value="2">2 pontos (Entrada / Saída Final)</option>
+    <option value="4">4 pontos (Entrada / Intervalo / Retorno / Saída Final)</option>
+    <option value="6">6 pontos (Entrada / Intervalo 1 / Retorno 1 / Intervalo 2 / Retorno 2 / Saída Final)</option>
+  </select>
+</div>
+
     <button
       className="point-btn"
       onClick={handleRegisterPoint}
@@ -241,67 +261,89 @@ return (
 
         <h4>Detalhes do Dia</h4>
 
-        {summary.points.map((point, index) => {
-          const isUnpaired = index === summary.points.length - 1 && summary.points.length % 2 !== 0;
-          const localHora = new Date(point.timestamp)
-            .toLocaleString('pt-BR', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            })
-            .replace(',', ' -');
 
-          return (
-            <div
-              key={point.id}
-              className="point-item"
-              style={{ background: isUnpaired ? '#fff7e6' : 'inherit' }}
+
+
+
+
+{summary.points.map((point, index) => {
+  const total = summary.points.length;
+  const isUnpaired = index === total - 1 && total % 2 !== 0;
+
+  const modo = Number(localStorage.getItem('quantidadePontos')) || 0;
+  let label = '';
+
+if (modo === 2) {
+  label = index === 0 ? 'Entrada' : 'Saída Final';
+} else if (modo === 4) {
+  const labels4 = ['Entrada', 'Intervalo', 'Retorno', 'Saída Final'];
+  label = labels4[index] || `Ponto ${index + 1}`;
+} else if (modo === 6) {
+  const labels6 = ['Entrada', 'Intervalo 1', 'Retorno 1', 'Intervalo 2', 'Retorno 2', 'Saída Final'];
+  label = labels6[index] || `Ponto ${index + 1}`;
+} else {
+  label = `Ponto ${index + 1}`;
+}
+
+  const localHora = new Date(point.timestamp).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).replace(',', ' -');
+
+  return (
+    <div
+      key={point.id}
+      className="point-item"
+      style={{ background: isUnpaired ? '#fff7e6' : 'inherit' }}
+    >
+      <div className="point-row">
+        <span className="point-label">{label}</span>
+        <span className="point-timestamp">{localHora}</span>
+      </div>
+
+      <div className="point-actions">
+        {editingPointId === point.id ? (
+          <>
+            <input
+              type="datetime-local"
+              value={editedTimestamp}
+              onChange={(e) => setEditedTimestamp(e.target.value)}
+              className="edit-input"
+            />
+            <button
+              className="save-btn action-btn"
+              onClick={() => handleSaveEdit(point.id)}
             >
-              <div className="point-row">
-                <span className="point-label">{point.type.replace('_', ' ')}</span>
-                <span className="point-timestamp">{localHora}</span>
-              </div>
+              Salvar
+            </button>
+            <button
+              className="cancel-btn action-btn"
+              onClick={() => setEditingPointId(null)}
+            >
+              Cancelar
+            </button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => handleEditClick(point.id, point.timestamp)}>
+              Editar
+            </button>
+            <button onClick={() => handleDeletePoint(point.id)}>
+              Excluir
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+})}
 
-              <div className="point-actions">
-                {editingPointId === point.id ? (
-                  <>
-                    <input
-                      type="datetime-local"
-                      value={editedTimestamp}
-                      onChange={(e) => setEditedTimestamp(e.target.value)}
-                      className="edit-input"
-                    />
-                    <button
-                      className="save-btn action-btn"
-                      onClick={() => handleSaveEdit(point.id)}
-                    >
-                      Salvar
-                    </button>
-                    <button
-                      className="cancel-btn action-btn"
-                      onClick={() => setEditingPointId(null)}
-                    >
-                      Cancelar
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={() => handleEditClick(point.id, point.timestamp)}>
-                      Editar
-                    </button>
-                    <button onClick={() => handleDeletePoint(point.id)}>
-                      Excluir
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          );
-        })}
 
+  
         {/* ✅ Dica de boas práticas */}
         <div style={{
           marginTop: '20px',
